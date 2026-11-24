@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIM VNP - Tactical Control Panel</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --card-bg: #121216;
+            --card-border: #222228;
+            --text-main: #ffffff;
+            --text-muted: #71717a;
+            --accent-red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #000;
+            color: var(--text-main);
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 430px;
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(#1f1f23 1px, transparent 1px);
+            background-size: 16px 16px;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            border-left: 1px solid #18181b;
+            border-right: 1px solid #18181b;
+        }
+
+        .font-display {
+            font-family: 'Chakra Petch', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chamfer-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+        }
+
+        .chamfer-btn {
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .chamfer-btn:active {
+            transform: scale(0.98);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px 10px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-badge {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        /* Màn hình 1: Login */
+        #login-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .logo-glow {
+            filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.25));
+            margin-bottom: 20px;
+        }
+
+        .brand-title {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+        }
+
+        .input-wrapper {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 12px;
+        }
+
+        .input-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-label::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            display: inline-block;
+        }
+
+        .key-input-box {
+            display: flex;
+            background: #111114;
+            border: 1px solid #27272a;
+            padding: 6px;
+            align-items: center;
+            transition: border-color 0.2s;
+        }
+
+        .key-input-box.error {
+            border-color: var(--accent-red);
+        }
+
+        .key-input-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            padding: 10px;
+            outline: none;
+            text-transform: uppercase;
+        }
+
+        .paste-btn {
+            background: #27272a;
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .error-msg {
+            color: var(--accent-red);
+            font-size: 11px;
+            text-align: left;
+            width: 100%;
+            margin-bottom: 16px;
+            min-height: 16px;
+        }
+
+        .unlock-btn {
+            width: 100%;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .login-footer {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        /* Màn hình chính sau khi Unlock */
+        #main-app {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            padding-bottom: 85px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 10px 20px;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TAB 1: HOME */
+        .dial-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 25px auto 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dial-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .time-text {
+            font-size: 30px;
+            font-weight: 700;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        .time-sub {
+            font-size: 10px;
+            color: #4ade80;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .device-card {
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .card-micro-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .device-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .device-note {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .sub-banner {
+            background: #ffffff;
+            color: #000000;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .sub-banner h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .sub-banner p {
+            font-size: 11px;
+            color: #3f3f46;
+        }
+
+        .plus-box {
+            width: 42px;
+            height: 42px;
+            background: #e4e4e7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* TAB 2: FEATURES */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            background: #18181c;
+            border: 1px solid #27272a;
+            color: #a1a1aa;
+            padding: 12px 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .preset-btn.active {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+
+        .feature-panel {
+            padding: 20px;
+        }
+
+        .feature-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .badge-new {
+            background: #27272a;
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 6px;
+        }
+
+        .feature-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 220px;
+            line-height: 1.5;
+        }
+
+        .tactical-switch {
+            width: 54px;
